@@ -2,16 +2,17 @@ package com.finalhints.common.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author amitbhoraniya
- *
  */
 public class FileUtils {
 
@@ -31,8 +32,29 @@ public class FileUtils {
 		fileOrDir.delete();
 	}
 
-	public static byte[] readFileToBytes(File fileOrDir) {
-		return null;
+	public static byte[] readFileToBytes(File file) {
+		try {
+			FileInputStream fileStream = new FileInputStream(file);
+			return readBytes(fileStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return new byte[]{};
+	}
+
+	public static byte[] readBytes(InputStream inputStream) throws IOException {
+		byte[] buffer = new byte[32 * 1024];
+		int bufferSize = 0;
+		for (;;) {
+			int read = inputStream.read(buffer, bufferSize, buffer.length - bufferSize);
+			if (read == -1) {
+				return Arrays.copyOf(buffer, bufferSize);
+			}
+			bufferSize += read;
+			if (bufferSize == buffer.length) {
+				buffer = Arrays.copyOf(buffer, bufferSize * 2);
+			}
+		}
 	}
 
 	public static String readFileToString(File file) {
@@ -52,7 +74,8 @@ public class FileUtils {
 			e.printStackTrace();
 		} finally {
 			try {
-				br.close();
+				if (br != null)
+					br.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -77,7 +100,8 @@ public class FileUtils {
 			e.printStackTrace();
 		} finally {
 			try {
-				br.close();
+				if (br != null)
+					br.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
